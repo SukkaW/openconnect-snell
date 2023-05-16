@@ -1,11 +1,14 @@
-FROM debian:stable-slim
+FROM bitnami/minideb:latest
 
 LABEL maintainer="SukkaW <hi@skk.moe>"
 
-RUN apt-get update \
-  && apt-get install -y unzip wget openconnect \
+RUN install_packages unzip wget ca-certificates openconnect \
   && wget -O snell-server.zip https://dl.nssurge.com/snell/snell-server-v4.0.1-linux-amd64.zip \
   && unzip snell-server.zip \
+  && rm -rf snell-server.zip \
+  && apt-get remove --purge -y unzip wget \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists /var/cache/apt/archives \
   && mv snell-server /usr/local/bin/
 
 ENV SNELL_HOST=0.0.0.0
