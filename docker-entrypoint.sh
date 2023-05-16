@@ -15,7 +15,7 @@ EOF
   cat snell.conf
   snell-server -c snell.conf &
 
-  (echo "$VPN_PASSWORD"; echo "${VPN_AUTH_CODE}") | openconnect --user="${VPN_USER}" --passwd-on-stdin --servercert="${VPN_CERT_SHA256}" --authgroup="${VPN_AUTH_GROUP}" --os=linux-64 "${VPN_HOST}"
+  (echo "$VPN_PASSWORD"; echo "${VPN_AUTH_CODE}") | openconnect --user="${VPN_USER}" --passwd-on-stdin --servercert="${VPN_SERVERCERT}" --authgroup="${VPN_AUTH_GROUP}" --os=linux-64 "${VPN_HOST}"
 }
 
 if [ -z "$@" ]; then

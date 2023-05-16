@@ -24,6 +24,7 @@ ENV VPN_PASSWD=
 ENV VPN_AUTH_GROUP=
 ENV VPN_AUTH_CODE=
 ENV VPN_HOST=
+ENV VPN_SERVERCERT=
 
 COPY docker-entrypoint.sh /opt
 ENTRYPOINT ["/opt/docker-entrypoint.sh"]
