@@ -15,7 +15,11 @@ EOF
   cat snell.conf
   snell-server -c snell.conf &
 
-  (echo "$VPN_PASSWORD"; echo "${VPN_AUTH_CODE}") | openconnect --user="${VPN_USER}" --passwd-on-stdin --servercert="${VPN_SERVERCERT}" --authgroup="${VPN_AUTH_GROUP}" --os=linux-64 "${VPN_HOST}"
+  if [ -z "$VPN_NO_DTLS" ]; then
+    (echo "${VPN_PASSWORD}"; echo "${VPN_AUTH_CODE}") | openconnect --user="${VPN_USER}" --passwd-on-stdin --servercert="${VPN_SERVERCERT}" --authgroup="${VPN_AUTH_GROUP}" --os=linux-64 "${VPN_HOST}"
+  else
+    (echo "${VPN_PASSWORD}"; echo "${VPN_AUTH_CODE}") | openconnect --user="${VPN_USER}" --passwd-on-stdin --servercert="${VPN_SERVERCERT}" --authgroup="${VPN_AUTH_GROUP}" --os=linux-64 --no-dtls "${VPN_HOST}"
+  fi
 }
 
 if [ -z "$@" ]; then
