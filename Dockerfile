@@ -1,15 +1,21 @@
-FROM bitnami/minideb:latest
+FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
+FROM --platform=$BUILDPLATFORM frolvlad/alpine-glibc:latest AS build
 
 LABEL maintainer="SukkaW <hi@skk.moe>"
 
-RUN install_packages unzip wget ca-certificates openconnect \
-  && wget -O snell-server.zip https://dl.nssurge.com/snell/snell-server-v4.0.1-linux-amd64.zip \
+ARG SNELL_VERSION=4.0.1
+ARG TARGETPLATFORM
+
+COPY --from=xx / /
+COPY get-snell-url.sh /get-snell-url.sh
+
+RUN xx-info env \
+  && wget -O snell-server.zip $(/get-snell-url.sh ${SNELL_VERSION} $(xx-info arch)) \
   && unzip snell-server.zip \
-  && rm -rf snell-server.zip \
-  && apt-get remove --purge -y unzip wget \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists /var/cache/apt/archives \
-  && mv snell-server /usr/local/bin/
+  && rm snell-server.zip \
+  && xx-verify /snell-server
+
+FROM frolvlad/alpine-glibc:latest
 
 ENV SNELL_HOST=0.0.0.0
 ENV SNELL_PORT=8388
@@ -27,5 +33,8 @@ ENV VPN_HOST=
 ENV VPN_SERVERCERT=
 ENV VPN_NO_DTLS=
 
-COPY docker-entrypoint.sh /opt
-ENTRYPOINT ["/opt/docker-entrypoint.sh"]
+RUN apk add --update --no-cache openconnect
+COPY --from=build /snell-server /usr/bin/snell-server
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
