@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 launch() {
   if [ -z "$SNELL_PSK" ]; then

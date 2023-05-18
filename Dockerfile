@@ -1,5 +1,5 @@
 FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
-FROM --platform=$BUILDPLATFORM frolvlad/alpine-glibc:latest AS build
+FROM --platform=$BUILDPLATFORM bitnami/minideb:bullseye AS build
 
 LABEL maintainer="SukkaW <hi@skk.moe>"
 
@@ -10,12 +10,13 @@ COPY --from=xx / /
 COPY get-snell-url.sh /get-snell-url.sh
 
 RUN xx-info env \
+  && install_packages wget unzip ca-certificates \
   && wget -O snell-server.zip $(/get-snell-url.sh ${SNELL_VERSION} $(xx-info arch)) \
   && unzip snell-server.zip \
   && rm snell-server.zip \
   && xx-verify /snell-server
 
-FROM frolvlad/alpine-glibc:latest
+FROM bitnami/minideb:bullseye
 
 ENV SNELL_HOST=0.0.0.0
 ENV SNELL_PORT=8388
@@ -33,7 +34,7 @@ ENV VPN_HOST=
 ENV VPN_SERVERCERT=
 ENV VPN_NO_DTLS=
 
-RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/ openconnect
+RUN install_packages openconnect ca-certificates
 COPY --from=build /snell-server /usr/bin/snell-server
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
