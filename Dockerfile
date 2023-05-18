@@ -33,7 +33,7 @@ ENV VPN_HOST=
 ENV VPN_SERVERCERT=
 ENV VPN_NO_DTLS=
 
-RUN apk add --update --no-cache openconnect
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/ openconnect
 COPY --from=build /snell-server /usr/bin/snell-server
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
