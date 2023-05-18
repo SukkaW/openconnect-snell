@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 launch() {
   if [ -z "$SNELL_PSK" ]; then
@@ -13,13 +13,21 @@ obfs = ${SNELL_OBFS}
 EOF
 
   cat snell.conf
-  snell-server -c snell.conf &
 
   if [ -z "$VPN_NO_DTLS" ]; then
-    (echo "${VPN_PASSWORD}"; echo "${VPN_AUTH_CODE}") | openconnect --user="${VPN_USER}" --passwd-on-stdin --servercert="${VPN_SERVERCERT}" --authgroup="${VPN_AUTH_GROUP}" --os=linux-64 "${VPN_HOST}"
+    (echo "${VPN_PASSWORD}"; echo "${VPN_AUTH_CODE}") | openconnect --user="${VPN_USER}" --passwd-on-stdin --servercert="${VPN_SERVERCERT}" --authgroup="${VPN_AUTH_GROUP}" --os=linux-64 -b "${VPN_HOST}"
   else
-    (echo "${VPN_PASSWORD}"; echo "${VPN_AUTH_CODE}") | openconnect --user="${VPN_USER}" --passwd-on-stdin --servercert="${VPN_SERVERCERT}" --authgroup="${VPN_AUTH_GROUP}" --os=linux-64 --no-dtls "${VPN_HOST}"
+    (echo "${VPN_PASSWORD}"; echo "${VPN_AUTH_CODE}") | openconnect --user="${VPN_USER}" --passwd-on-stdin --servercert="${VPN_SERVERCERT}" --authgroup="${VPN_AUTH_GROUP}" --os=linux-64 -b --no-dtls "${VPN_HOST}"
   fi
+
+  # Wait for 5 seconds before starting snell-server, to make sure OpenConnect is up and populated
+  sleep 5
+  snell-server -c snell.conf &
+
+  # Wait for any process to exit
+  wait -n
+  # Exit with status of process that exited first
+  exit $?
 }
 
 if [ -z "$@" ]; then
